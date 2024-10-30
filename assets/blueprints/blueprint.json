@@ -1,0 +1,34 @@
+{
+    "$schema": "https://playground.wordpress.net/blueprint-schema.json",
+    "landingPage": "/?p=6",
+    "preferredVersions": {
+        "php": "8.1",
+        "wp": "latest"
+    },
+    "phpExtensionBundles": ["kitchen-sink"],
+    "steps": [
+        {
+            "step": "login",
+            "username": "admin",
+            "password": "password"
+        },
+        {
+            "step": "installPlugin",
+            "pluginZipFile": {
+                "resource": "wordpress.org\/plugins",
+                "slug": "block-logic"
+            },
+            "options": {
+                "activate": true
+            }
+        },
+        {
+            "step": "runPHP",
+            "code": "<?php\ninclude 'wordpress/wp-load.php';\nadd_post_type_support( 'page', 'excerpt' );"
+        },
+        {
+            "step": "runPHP",
+            "code": "<?php\ninclude 'wordpress/wp-load.php';\nwp_insert_post(array(\n'import_id' => 6,\n'post_title' => 'Block Logic',\n'post_type' => 'page',\n'post_content' => '<!-- wp:paragraph {\"blockLogic\":\"is_user_logged_in()\"} -->\n<p>Paragraph for logged in users only!</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:paragraph {\"blockLogic\":\"!is_user_logged_in()\"} -->\n<p>Paragraph for logged out users only!</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:paragraph -->\n<p>Paragraph that is always visible. No logic applied.</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:paragraph {\"blockLogic\":\"has_excerpt()\"} -->\n<p>Only show this block, if the page/post has an excerpt.</p>\n<!-- /wp:paragraph -->',\n'post_status' => 'publish',\n'post_author' => 1\n));"
+        }
+    ]
+}
